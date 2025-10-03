@@ -1,0 +1,21 @@
+# Flask and related libraries
+Flask
+Flask-Cors
+
+# Data handling
+pandas
+numpy
+
+# Machine Learning and NLP
+transformers
+torch
+vaderSentiment
+scikit-learn
+
+# Location and geographic analysis
+geopy
+geojson
+
+# Additional utilities for enhanced analytics
+python-dateutil
+requests

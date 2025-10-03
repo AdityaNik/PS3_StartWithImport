@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tata Motors - Customer Sentiment Analysis Dashboard</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --tata-blue: #0066cc;
+                --tata-dark-blue: #004499;
+                --tata-light-blue: #e6f3ff;
+                --success-green: #10b981;
+                --warning-orange: #f59e0b;
+                --danger-red: #ef4444;
+                --neutral-gray: #6b7280;
+                --bg-light: #f8fafc;
+                --text-primary: #1e293b;
+                --text-secondary: #64748b;
+                --border-color: #e2e8f0;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Inter", sans-serif;
+                background-color: var(--bg-light);
+                color: var(--text-primary);
+                line-height: 1.6;
+            }
+
+            .header {
+                background: linear-gradient(
+                    135deg,
+                    var(--tata-blue),
+                    var(--tata-dark-blue)
+                );
+                color: white;
+                padding: 2rem 0;
+                text-align: center;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 1rem;
+            }
+
+            .dashboard {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .input-section,
+            .results-section {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--border-color);
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                color: var(--tata-blue);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .input-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .input-group label {
+                display: block;
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+                color: var(--text-primary);
+            }
+
+            .textarea {
+                width: 100%;
+                padding: 1rem;
+                border: 2px solid var(--border-color);
+                border-radius: 8px;
+                font-size: 1rem;
+                font-family: inherit;
+                resize: vertical;
+                min-height: 120px;
+                transition: border-color 0.2s ease;
+            }
+
+            .textarea:focus {
+                outline: none;
+                border-color: var(--tata-blue);
+                box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+            }
+
+            .btn {
+                background: linear-gradient(
+                    135deg,
+                    var(--tata-blue),
+                    var(--tata-dark-blue)
+                );
+                color: white;
+                padding: 1rem 2rem;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(0, 102, 204, 0.3);
+            }
+
+            .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+            }
+
+            .loading {
+                display: none;
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .spinner {
+                border: 4px solid var(--border-color);
+                border-top: 4px solid var(--tata-blue);
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 1rem;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .results {
+                display: none;
+            }
+
+            .metric-card {
+                background: var(--bg-light);
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                border: 1px solid var(--border-color);
+            }
+
+            .metric-title {
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .sentiment-badges {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .sentiment-badge {
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-align: center;
+                flex: 1;
+            }
+
+            .sentiment-positive {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success-green);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+
+            .sentiment-negative {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger-red);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+            }
+
+            .sentiment-neutral {
+                background: rgba(107, 114, 128, 0.1);
+                color: var(--neutral-gray);
+                border: 1px solid rgba(107, 114, 128, 0.2);
+            }
+
+            .confidence-bar {
+                background: var(--border-color);
+                height: 8px;
+                border-radius: 4px;
+                overflow: hidden;
+                margin-top: 0.5rem;
+            }
+
+            .confidence-fill {
+                height: 100%;
+                background: var(--tata-blue);
+                transition: width 0.3s ease;
+            }
+
+            .aspects-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .aspect-tag {
+                background: var(--tata-light-blue);
+                color: var(--tata-dark-blue);
+                padding: 0.25rem 0.75rem;
+                border-radius: 16px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border: 1px solid rgba(0, 102, 204, 0.2);
+            }
+
+            .category-badge {
+                display: inline-block;
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                margin-top: 0.5rem;
+            }
+
+            .category-complaint {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger-red);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+            }
+
+            .category-praise {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success-green);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+            }
+
+            .category-suggestion {
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--warning-orange);
+                border: 1px solid rgba(245, 158, 11, 0.2);
+            }
+
+            .category-inquiry {
+                background: rgba(0, 102, 204, 0.1);
+                color: var(--tata-blue);
+                border: 1px solid rgba(0, 102, 204, 0.2);
+            }
+
+            .category-comparison {
+                background: rgba(107, 114, 128, 0.1);
+                color: var(--neutral-gray);
+                border: 1px solid rgba(107, 114, 128, 0.2);
+            }
+
+            .recommendation-card {
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 2rem;
+                margin-top: 2rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            }
+
+            .priority-badge {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .priority-high {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger-red);
+            }
+
+            .priority-medium {
+                background: rgba(245, 158, 11, 0.1);
+                color: var(--warning-orange);
+            }
+
+            .priority-low {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success-green);
+            }
+
+            .recommendation-section {
+                margin-bottom: 1.5rem;
+            }
+
+            .recommendation-section h4 {
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                color: var(--tata-blue);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .recommendation-section p {
+                color: var(--text-secondary);
+                line-height: 1.6;
+            }
+
+            .sales-strategies {
+                background: var(--tata-light-blue);
+                border-radius: 12px;
+                padding: 2rem;
+                margin-top: 2rem;
+            }
+
+            .strategy-list {
+                list-style: none;
+                padding: 0;
+            }
+
+            .strategy-item {
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                border-left: 4px solid var(--tata-blue);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .strategy-item strong {
+                color: var(--tata-blue);
+            }
+
+            .error-message {
+                background: rgba(239, 68, 68, 0.1);
+                color: var(--danger-red);
+                padding: 1rem;
+                border-radius: 8px;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+                margin-top: 1rem;
+                display: none;
+            }
+
+            .success-message {
+                background: rgba(16, 185, 129, 0.1);
+                color: var(--success-green);
+                padding: 1rem;
+                border-radius: 8px;
+                border: 1px solid rgba(16, 185, 129, 0.2);
+                margin-top: 1rem;
+                display: none;
+            }
+
+            .example-comments {
+                margin-top: 1rem;
+            }
+
+            .model-status {
+                margin-top: 0.5rem;
+                padding: 0.75rem 1rem;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                color: white;
+                font-size: 0.9rem;
+                text-align: center;
+            }
+
+            .model-status i {
+                color: #10b981;
+                margin-right: 0.5rem;
+            }
+
+            .status-badges {
+                margin-top: 0.5rem;
+                display: flex;
+                gap: 0.5rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+            .badge.active {
+                background: #10b981;
+                color: white;
+            }
+
+            .example-comment {
+                background: var(--bg-light);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                border: 1px solid var(--border-color);
+            }
+
+            .example-comment:hover {
+                background: var(--border-color);
+            }
+
+            .example-comment p {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                margin: 0;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                    margin-top: 1rem;
+                }
+
+                .header h1 {
+                    font-size: 2rem;
+                }
+
+                .input-section,
+                .results-section {
+                    padding: 1.5rem;
+                }
+
+                .sentiment-badges {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="container">
+                <h1><i class="fas fa-car"></i> Tata Motors</h1>
+                <p>
+                    Customer Sentiment Analysis & Strategic Insights Dashboard
+                </p>
+                <div class="model-status">
+                    <i class="fas fa-brain"></i> Enhanced ML Engine Active
+                    <span class="status-badges">
+                        <span class="badge active">Intent Classifier</span>
+                        <span class="badge active">BERT Analysis</span>
+                        <span class="badge active">Smart Caching</span>
+                        <span class="badge active">Rule Engine</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="dashboard">
+                <div class="input-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-comment-dots"></i>
+                        Customer Comment Analysis
+                    </h2>
+
+                    <div class="input-group">
+                        <label for="commentText">Enter Customer Comment:</label>
+                        <textarea
+                            id="commentText"
+                            class="textarea"
+                            placeholder="Type or paste customer comment here...
+
+Examples:
+• 'The service at Delhi dealership was terrible and unprofessional'
+• 'I absolutely love my Nexon EV! Amazing features and performance'
+• 'The build quality could be improved, especially the interior plastics'"
+                        ></textarea>
+                    </div>
+
+                    <button id="analyzeBtn" class="btn">
+                        <i class="fas fa-brain"></i>
+                        Analyze Comment
+                    </button>
+
+                    <div class="example-comments">
+                        <h4>Quick Examples:</h4>
+                        <div
+                            class="example-comment"
+                            onclick="setExampleComment('The Harman sound system in the Punch is absolutely amazing! Best in class experience.')"
+                        >
+                            <p>
+                                <strong>Positive:</strong> "The Harman sound
+                                system in the Punch is absolutely amazing! Best
+                                in class experience."
+                            </p>
+                        </div>
+                        <div
+                            class="example-comment"
+                            onclick="setExampleComment('The service at the dealership was terrible and the staff was very unprofessional.')"
+                        >
+                            <p>
+                                <strong>Complaint:</strong> "The service at the
+                                dealership was terrible and the staff was very
+                                unprofessional."
+                            </p>
+                        </div>
+                        <div
+                            class="example-comment"
+                            onclick="setExampleComment('I wish the Safari had ventilated seats in the mid-variant. It would be a game-changer.')"
+                        >
+                            <p>
+                                <strong>Suggestion:</strong> "I wish the Safari
+                                had ventilated seats in the mid-variant. It
+                                would be a game-changer."
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="error-message"></div>
+                    <div id="successMessage" class="success-message"></div>
+                </div>
+
+                <div class="results-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Analysis Results
+                    </h2>
+
+                    <div id="loading" class="loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing comment using BERT and VADER models...</p>
+                    </div>
+
+                    <div id="results" class="results">
+                        <div class="metric-card">
+                            <h3 class="metric-title">
+                                <i class="fas fa-tag"></i>
+                                Comment Category
+                            </h3>
+                            <div id="categoryResult"></div>
+                        </div>
+
+                        <div class="metric-card">
+                            <h3 class="metric-title">
+                                <i class="fas fa-heart"></i>
+                                Sentiment Analysis
+                            </h3>
+                            <div class="sentiment-badges">
+                                <div class="sentiment-badge" id="bertSentiment">
+                                    <strong>BERT (ML)</strong><br />
+                                    <span id="bertSentimentText">-</span>
+                                    <div class="confidence-bar">
+                                        <div
+                                            class="confidence-fill"
+                                            id="bertConfidence"
+                                        ></div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="sentiment-badge"
+                                    id="vaderSentiment"
+                                >
+                                    <strong>VADER (Rule-based)</strong><br />
+                                    <span id="vaderSentimentText">-</span>
+                                    <div id="vaderScores"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <h3 class="metric-title">
+                                <i class="fas fa-cogs"></i>
+                                Business Aspects Detected
+                            </h3>
+                            <div
+                                id="aspectsResult"
+                                class="aspects-container"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                id="recommendationCard"
+                class="recommendation-card"
+                style="display: none"
+            >
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Strategic Recommendation
+                    <span id="priorityBadge" class="priority-badge"></span>
+                </h2>
+
+                <div class="recommendation-section">
+                    <h4><i class="fas fa-search"></i> Business Insight</h4>
+                    <p id="insightText"></p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h4><i class="fas fa-chess"></i> Recommended Strategy</h4>
+                    <p id="strategyText"></p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h4><i class="fas fa-tasks"></i> Immediate Action</h4>
+                    <p id="actionText"></p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h4>
+                        <i class="fas fa-handshake"></i> Sentiment Consensus
+                    </h4>
+                    <p id="consensusText"></p>
+                </div>
+            </div>
+
+            <div
+                id="salesStrategies"
+                class="sales-strategies"
+                style="display: none"
+            >
+                <h2 class="section-title">
+                    <i class="fas fa-rocket"></i>
+                    Sales & Improvement Strategies
+                </h2>
+                <ul id="strategiesList" class="strategy-list"></ul>
+            </div>
+        </div>
+
+        <script>
+            // API Configuration
+            const API_BASE_URL = "http://localhost:5001";
+
+            // DOM Elements
+            const commentTextarea = document.getElementById("commentText");
+            const analyzeBtn = document.getElementById("analyzeBtn");
+            const loading = document.getElementById("loading");
+            const results = document.getElementById("results");
+            const recommendationCard =
+                document.getElementById("recommendationCard");
+            const salesStrategies = document.getElementById("salesStrategies");
+            const errorMessage = document.getElementById("errorMessage");
+            const successMessage = document.getElementById("successMessage");
+
+            // Set example comment
+            function setExampleComment(text) {
+                commentTextarea.value = text;
+                commentTextarea.focus();
+            }
+
+            // Show error message
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = "block";
+                successMessage.style.display = "none";
+            }
+
+            // Show success message
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = "block";
+                errorMessage.style.display = "none";
+            }
+
+            // Hide messages
+            function hideMessages() {
+                errorMessage.style.display = "none";
+                successMessage.style.display = "none";
+            }
+
+            // Update sentiment display
+            function updateSentimentDisplay(bertResult, vaderResult) {
+                // BERT Sentiment
+                const bertSentimentDiv =
+                    document.getElementById("bertSentiment");
+                const bertSentimentText =
+                    document.getElementById("bertSentimentText");
+                const bertConfidence =
+                    document.getElementById("bertConfidence");
+
+                bertSentimentText.textContent =
+                    bertResult.sentiment.toUpperCase();
+                bertConfidence.style.width = bertResult.confidence * 100 + "%";
+
+                bertSentimentDiv.className =
+                    "sentiment-badge sentiment-" + bertResult.sentiment;
+
+                // VADER Sentiment
+                const vaderSentimentDiv =
+                    document.getElementById("vaderSentiment");
+                const vaderSentimentText =
+                    document.getElementById("vaderSentimentText");
+                const vaderScores = document.getElementById("vaderScores");
+
+                vaderSentimentText.textContent =
+                    vaderResult.sentiment.toUpperCase();
+                vaderSentimentDiv.className =
+                    "sentiment-badge sentiment-" + vaderResult.sentiment;
+
+                // VADER scores
+                if (vaderResult.scores) {
+                    vaderScores.innerHTML = `
+                    <small style="font-size: 0.75rem; opacity: 0.8;">
+                        Pos: ${vaderResult.scores.positive} |
+                        Neu: ${vaderResult.scores.neutral} |
+                        Neg: ${vaderResult.scores.negative}
+                    </small>
+                `;
+                }
+            }
+
+            // Update category display with enhanced ML categories
+            function updateCategoryDisplay(category) {
+                const categoryResult =
+                    document.getElementById("categoryResult");
+                let categoryClass = "category-complaint";
+
+                if (
+                    category.includes("Praise") ||
+                    category.includes("Satisfaction")
+                )
+                    categoryClass = "category-praise";
+                else if (
+                    category.includes("Suggestion") ||
+                    category.includes("Feature Request")
+                )
+                    categoryClass = "category-suggestion";
+                else if (
+                    category.includes("Inquiry") ||
+                    category.includes("Purchase") ||
+                    category.includes("Question")
+                )
+                    categoryClass = "category-inquiry";
+                else if (
+                    category.includes("Comparison") ||
+                    category.includes("Competitive")
+                )
+                    categoryClass = "category-comparison";
+                else if (
+                    category.includes("Complaint") ||
+                    category.includes("Criticism")
+                )
+                    categoryClass = "category-complaint";
+
+                // Add ML-powered indicator
+                const mlIndicator =
+                    '<i class="fas fa-robot" style="margin-left: 0.5rem; color: #10b981;" title="ML-Powered Classification"></i>';
+                categoryResult.innerHTML = `<span class="category-badge ${categoryClass}">${category}${mlIndicator}</span>`;
+            }
+
+            // Update aspects display
+            function updateAspectsDisplay(aspects) {
+                const aspectsResult = document.getElementById("aspectsResult");
+
+                if (aspects.length === 0) {
+                    aspectsResult.innerHTML =
+                        '<span style="color: var(--text-secondary); font-style: italic;">No specific business aspects detected</span>';
+                    return;
+                }
+
+                aspectsResult.innerHTML = aspects
+                    .map(
+                        (aspect) => `<span class="aspect-tag">${aspect}</span>`,
+                    )
+                    .join("");
+            }
+
+            // Update recommendation display
+            function updateRecommendationDisplay(recommendation) {
+                document.getElementById("insightText").textContent =
+                    recommendation.insight;
+                document.getElementById("strategyText").textContent =
+                    recommendation.strategy;
+                document.getElementById("actionText").textContent =
+                    recommendation.action;
+
+                // Handle both old and new recommendation formats
+                const consensusText =
+                    recommendation.sentiment_consensus ||
+                    `ML-Powered Analysis: ${recommendation.priority} Priority Action Required`;
+                document.getElementById("consensusText").textContent =
+                    consensusText;
+
+                const priorityBadge = document.getElementById("priorityBadge");
+                priorityBadge.textContent = recommendation.priority;
+                priorityBadge.className = `priority-badge priority-${recommendation.priority.toLowerCase()}`;
+
+                recommendationCard.style.display = "block";
+            }
+
+            // Generate and display sales strategies
+            function generateSalesStrategies(analysisData) {
+                const strategies = [];
+                const {
+                    predicted_category,
+                    identified_aspects,
+                    sentiment_analysis,
+                    strategic_recommendation,
+                } = analysisData;
+
+                // Enhanced strategies based on ML-powered analysis
+                if (
+                    predicted_category.includes("Complaint") ||
+                    predicted_category.includes("Criticism")
+                ) {
+                    strategies.push({
+                        title: "AI-Powered Issue Resolution",
+                        description:
+                            "Use ML insights to identify root causes and reach out to dissatisfied customers within 24 hours with targeted solutions.",
+                    });
+                    strategies.push({
+                        title: "Predictive Service Excellence",
+                        description:
+                            "Implement data-driven training programs for dealership staff based on customer feedback patterns to prevent similar issues.",
+                    });
+                }
+
+                if (
+                    predicted_category.includes("Praise") ||
+                    predicted_category.includes("Satisfaction")
+                ) {
+                    strategies.push({
+                        title: "Smart Testimonial Amplification",
+                        description:
+                            "Leverage ML-categorized positive feedback in targeted marketing campaigns and social media to build brand credibility.",
+                    });
+                    strategies.push({
+                        title: "Intelligent Customer Advocacy",
+                        description:
+                            "Convert satisfied customers into brand ambassadors using personalized referral programs based on their specific praise points.",
+                    });
+                }
+
+                if (
+                    predicted_category.includes("Suggestion") ||
+                    predicted_category.includes("Feature Request")
+                ) {
+                    strategies.push({
+                        title: "AI-Driven Co-Creation",
+                        description:
+                            "Use machine learning to prioritize customer suggestions and involve them in product development based on sentiment trends.",
+                    });
+                    strategies.push({
+                        title: "Smart Innovation Pipeline",
+                        description:
+                            "Fast-track ML-validated improvements that align with market trends and customer sentiment patterns.",
+                    });
+                }
+
+                if (
+                    predicted_category.includes("Inquiry") ||
+                    predicted_category.includes("Question")
+                ) {
+                    strategies.push({
+                        title: "Intelligent Sales Acceleration",
+                        description:
+                            "Use ML insights to ensure immediate, personalized follow-up with potential customers based on their specific interests.",
+                    });
+                    strategies.push({
+                        title: "AI-Optimized Conversion",
+                        description:
+                            "Streamline the purchase process using predictive analytics and offer personalized financing options to convert inquiries into sales.",
+                    });
+                }
+
+                if (predicted_category.includes("Competitive Comparison")) {
+                    strategies.push({
+                        title: "Competitive Intelligence Response",
+                        description:
+                            "Address competitor comparisons with data-driven responses highlighting Tata Motors' unique strengths and advantages.",
+                    });
+                }
+
+                // Aspect-specific strategies
+                if (identified_aspects.includes("EV")) {
+                    strategies.push({
+                        title: "EV Education Campaign",
+                        description:
+                            "Conduct workshops and demonstrations to address range anxiety and showcase EV benefits.",
+                    });
+                }
+
+                if (identified_aspects.includes("Service")) {
+                    strategies.push({
+                        title: "Service Network Expansion",
+                        description:
+                            "Increase service center coverage and reduce wait times through better resource allocation.",
+                    });
+                }
+
+                if (identified_aspects.includes("Features")) {
+                    strategies.push({
+                        title: "Feature Showcase Initiative",
+                        description:
+                            "Create interactive demonstrations and digital content highlighting unique features and technology.",
+                    });
+                }
+
+                // Sentiment-based strategies
+                const bertSentiment = sentiment_analysis.bert.sentiment;
+                const vaderSentiment = sentiment_analysis.vader.sentiment;
+
+                if (
+                    bertSentiment === "negative" ||
+                    vaderSentiment === "negative"
+                ) {
+                    strategies.push({
+                        title: "Reputation Management",
+                        description:
+                            "Monitor and respond to negative feedback across all platforms with empathy and actionable solutions.",
+                    });
+                }
+
+                if (
+                    bertSentiment === "positive" ||
+                    vaderSentiment === "positive"
+                ) {
+                    strategies.push({
+                        title: "Momentum Building",
+                        description:
+                            "Amplify positive sentiment through strategic content marketing and community building initiatives.",
+                    });
+                }
+
+                // Display strategies
+                const strategiesList =
+                    document.getElementById("strategiesList");
+                strategiesList.innerHTML = strategies
+                    .map(
+                        (strategy) =>
+                            `<li class="strategy-item">
+                    <strong>${strategy.title}:</strong> ${strategy.description}
+                </li>`,
+                    )
+                    .join("");
+
+                salesStrategies.style.display = "block";
+            }
+
+            // Main analysis function
+            async function analyzeComment() {
+                const text = commentTextarea.value.trim();
+
+                if (!text) {
+                    showError("Please enter a customer comment to analyze.");
+                    return;
+                }
+
+                hideMessages();
+                analyzeBtn.disabled = true;
+                loading.style.display = "block";
+                results.style.display = "none";
+                recommendationCard.style.display = "none";
+                salesStrategies.style.display = "none";
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/analyze`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ text: text }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `HTTP error! status: ${response.status}`,
+                        );
+                    }
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Update displays
+                    updateCategoryDisplay(data.predicted_category);
+                    updateSentimentDisplay(
+                        data.sentiment_analysis.bert,
+                        data.sentiment_analysis.vader,
+                    );
+                    updateAspectsDisplay(data.identified_aspects);
+                    updateRecommendationDisplay(data.strategic_recommendation);
+                    generateSalesStrategies(data);
+
+                    // Show results
+                    results.style.display = "block";
+                    showSuccess(
+                        "🤖 ML-Powered Analysis Completed! Enhanced insights generated using Intent Classifier, BERT sentiment analysis, and intelligent recommendation engine.",
+                    );
+
+                    // Scroll to results
+                    results.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                } catch (error) {
+                    console.error("Analysis error:", error);
+                    showError(
+                        `ML Analysis failed: ${error.message}. Please ensure the enhanced backend server with ML models is running and properly initialized.`,
+                    );
+                } finally {
+                    loading.style.display = "none";
+                    analyzeBtn.disabled = false;
+                }
+            }
+
+            // Event listeners
+            analyzeBtn.addEventListener("click", analyzeComment);
+
+            commentTextarea.addEventListener("keypress", function (e) {
+                if (e.key === "Enter" && e.ctrlKey) {
+                    analyzeComment();
+                }
+            });
+
+            // Check API health on page load
+            window.addEventListener("load", async function () {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/health`);
+                    const data = await response.json();
+
+                    if (data.status === "healthy") {
+                        console.log("Backend API is healthy:", data);
+                    } else {
+                        console.warn("Backend API health check failed:", data);
+                    }
+                } catch (error) {
+                    console.warn(
+                        "Could not connect to backend API:",
+                        error.message,
+                    );
+                    showError(
+                        "Backend API is not accessible. Please ensure the Flask server is running on http://localhost:5000",
+                    );
+                }
+            });
+        </script>
+    </body>
+</html>
