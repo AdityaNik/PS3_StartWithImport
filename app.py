@@ -855,6 +855,71 @@ def generate_location_recommendation(category, aspects, location_data, bert_sent
     return enhanced_recommendation
 
 
+def detect_brand_mentions(text):
+    """
+    Enhanced brand detection using NLP techniques
+    """
+    text_lower = text.lower()
+    
+    # Enhanced brand keywords with variations
+    brand_patterns = {
+        "Tata Motors": [
+            r'\btata\b', r'\bnexon\b', r'\bharrier\b', r'\bsafari\b', 
+            r'\bpunch\b', r'\baltroz\b', r'\btigor\b', r'\btiago\b',
+            r'\bnexon ev\b', r'\btiago ev\b', r'\btata motors\b'
+        ],
+        "Mahindra": [
+            r'\bmahindra\b', r'\bxuv700\b', r'\bxuv300\b', r'\bscorpio\b',
+            r'\bthar\b', r'\bbolero\b', r'\bxuv500\b', r'\bmarazzo\b'
+        ],
+        "Hyundai": [
+            r'\bhyundai\b', r'\bcreta\b', r'\bvenue\b', r'\bi20\b',
+            r'\bverna\b', r'\balcazar\b', r'\btucson\b'
+        ],
+        "Kia": [
+            r'\bkia\b', r'\bseltos\b', r'\bsonet\b', r'\bcarens\b'
+        ],
+        "Maruti Suzuki": [
+            r'\bmaruti\b', r'\bsuzuki\b', r'\bbrezza\b', r'\bvitara\b',
+            r'\bswift\b', r'\bbaleno\b', r'\bwagon r\b', r'\bdzire\b',
+            r'\berto\b', r'\bciaz\b'
+        ]
+    }
+    
+    detected_brands = []
+    brand_confidence = {}
+    
+    for brand, patterns in brand_patterns.items():
+        matches = 0
+        for pattern in patterns:
+            if re.search(pattern, text_lower):
+                matches += 1
+        
+        if matches > 0:
+            detected_brands.append(brand)
+            brand_confidence[brand] = min(matches / len(patterns), 1.0)
+    
+    # Determine primary brand
+    if not detected_brands:
+        primary_brand = "Unspecified"
+        confidence = 0.0
+    elif len(detected_brands) == 1:
+        primary_brand = detected_brands[0]
+        confidence = brand_confidence[detected_brands[0]]
+    else:
+        # Multiple brands detected - choose the one with highest confidence
+        primary_brand = max(detected_brands, key=lambda x: brand_confidence[x])
+        confidence = brand_confidence[primary_brand]
+    
+    return {
+        "primary_brand": primary_brand,
+        "all_brands": detected_brands,
+        "confidence": confidence,
+        "brand_scores": brand_confidence,
+        "is_competitive_mention": len(detected_brands) > 1
+    }
+
+
 def generate_recommendation_v2(
     category, aspects, bert_sentiment=None, vader_sentiment=None
 ):
@@ -1020,6 +1085,9 @@ def analyze_comment():
 
         # Analyze business aspects
         identified_aspects = analyze_aspects(comment_text)
+
+        # Enhanced brand detection
+        brand_analysis = detect_brand_mentions(comment_text)
 
         # Detect locations mentioned in the comment
         location_data = detect_location(comment_text)

@@ -1,298 +1,277 @@
-# Tata Motors Customer Sentiment Analysis System
+# 🚗 Tata Motors Advanced Customer Analytics Platform
 
-A comprehensive Flask backend and interactive frontend for analyzing Tata Motors customer comments using advanced ML (BERT) and rule-based (VADER) sentiment analysis techniques.
+A comprehensive customer sentiment analysis platform with location intelligence, ROI scoring, and AI-powered insights for Tata Motors.
 
-## 🚀 Features
+## 🌟 Features Overview
 
-### Backend (Flask API)
-- **Dual Sentiment Analysis**: BERT (ML-based) + VADER (rule-based)
-- **Category Prediction**: Automatically classifies comments into business categories
-- **Aspect Detection**: Identifies key business aspects (Service, EV, Features, etc.)
+### Core Analytics Engine
+- **BERT & VADER Sentiment Analysis**: Dual ML+Rule-based sentiment detection
+- **Intent Classification**: Automatic categorization of customer feedback
+- **Business Aspect Detection**: Identifies specific areas like Service, Features, EV, Price, etc.
+- **Location Intelligence**: Detects and analyzes geographic patterns in customer feedback
+
+### 📊 Dashboard Capabilities
+
+#### 1. **HTML Dashboard** (`dashboard.html`)
+- Real-time comment analysis
+- Interactive sentiment visualization
+- Location-based insights with city/regional analytics
+- Historical analysis tracking
+- Strategic recommendations with priority scoring
+
+#### 2. **Advanced Streamlit Dashboard** (`streamlit_dashboard.py`)
+- **📈 Overview Analytics**: KPIs, trends, and comprehensive visualizations
+- **🗺️ Location Intelligence**: Geographic sentiment mapping and regional performance
+- **💡 ROI & Opportunity Scoring**: Investment prioritization framework
+- **🤖 AI Insight Agent**: Automated discovery of critical patterns and recommendations
+- **🔄 Real-time Analysis**: Live comment processing with backend integration
+
+### 🚀 New Location-Based Features
+
+#### Location Detection & Analytics
+- **190+ Indian Cities**: Comprehensive city recognition
+- **37 States/UTs**: Complete geographic coverage
+- **6 Regional Zones**: North, South, East, West, Central, Northeast mapping
+- **City Performance Metrics**: Sentiment analysis by location
+- **Service Hotspots**: Identification of problem areas
+- **Growth Markets**: Potential expansion opportunities
+
+#### API Endpoints
+- `/location-analytics`: Comprehensive location-based insights
+- `/city-trends`: City-wise sentiment trends and patterns  
+- `/regional-performance`: Regional performance analytics
+- `/location-insights`: Location-specific insights for given text
+
+### 💰 ROI & Investment Prioritization
+
+#### Opportunity Scoring Algorithm
+```
+Final Score = (Volume Score × 0.3) + (Sentiment Impact × 0.4) + (Category Impact × 0.3)
+```
+
+- **Volume Score**: Normalized discussion frequency
+- **Sentiment Impact**: Percentage of negative sentiment
+- **Category Impact**: Weight of complaints vs suggestions
+
+#### Investment Tiers
+- **🔴 Critical Priority (75-100)**: High investment, very high ROI
+- **🟡 High Priority (50-75)**: Moderate investment, high ROI  
+- **🟢 Medium Priority (25-50)**: Low investment, medium ROI
+- **⚪ Low Priority (0-25)**: Minimal investment, monitor
+
+### 🤖 AI Insight Discovery Agent
+
+#### Automated Analysis Capabilities
+- **Pain Point Detection**: Identifies most critical customer issues
+- **Growth Opportunity Analysis**: Discovers customer satisfaction drivers
+- **Competitive Intelligence**: Monitors competitor mentions and sentiment
+- **Regional Performance Insights**: Analyzes geographic patterns
 - **Strategic Recommendations**: Generates actionable business insights
-- **RESTful API**: Easy integration with any frontend
 
-### Frontend (Interactive Dashboard)
-- **Modern UI**: Clean, responsive design with Tata Motors branding
-- **Real-time Analysis**: Instant sentiment analysis and recommendations
-- **Visual Insights**: Interactive charts and sentiment indicators
-- **Sales Strategies**: AI-generated improvement strategies
-- **Example Comments**: Quick-start examples for testing
+#### Agent Workflow
+1. **Data Analysis**: Processes entire dataset for patterns
+2. **Pain Point Discovery**: Identifies top customer complaints
+3. **Opportunity Mapping**: Finds areas of customer delight
+4. **Competitive Monitoring**: Analyzes competitor mentions
+5. **Regional Assessment**: Evaluates geographic performance
+6. **Report Generation**: Creates executive summary with recommendations
 
-## 📁 Project Structure
-
-```
-coep/
-├── app.py                              # Flask backend application
-├── index.html                          # Frontend dashboard
-├── synthetic_tata_motors_data.csv      # Dataset (auto-generated if missing)
-└── README.md                           # This file
-```
-
-## 🛠️ Installation & Setup
+## ️ Installation & Setup
 
 ### Prerequisites
-- Python 3.8 or higher
-- pip (Python package installer)
-- Internet connection (for downloading ML models)
-
-### Step 1: Install Dependencies
-
 ```bash
-pip install flask flask-cors pandas transformers torch vaderSentiment
+Python 3.8+
+pip or conda
 ```
 
-### Step 2: Start the Backend Server
-
+### 1. Install Dependencies
 ```bash
-cd coep
+# Install required packages
+pip install -r requirements.txt
+```
+
+### 2. Prepare Data
+Ensure `synthetic_tata_motors_data.csv` is in the project root directory.
+
+### 3. Start the Backend (Flask API)
+```bash
 python app.py
 ```
+The API will be available at `http://localhost:5001`
 
-You should see output like:
-```
-🚀 Starting Tata Motors Comment Analysis Server...
-📊 Initializing ML models and analyzers...
-✅ Dataset loaded with X records
-🤖 Loading BERT model for ML-based sentiment analysis...
-📝 Loading VADER for rule-based sentiment analysis...
-✅ All models initialized successfully!
-🌐 Server starting on http://0.0.0.0:5000
-```
-
-### Step 3: Open the Frontend
-
-Open `index.html` in your web browser or use a local server:
-
+### 4. Start the HTML Dashboard
 ```bash
-# Option 1: Open directly in browser
-open index.html
+# Option 1: Simple HTTP server
+python -m http.server 8080
 
-# Option 2: Use Python's built-in server
-python -m http.server 8000
-# Then visit http://localhost:8000
+# Option 2: Open dashboard.html directly in browser
 ```
+Access at `http://localhost:8080/dashboard.html`
 
-## 🎯 Usage
-
-### API Endpoints
-
-#### 1. Analyze Comment
+### 5. Start the Advanced Streamlit Dashboard
 ```bash
-POST /analyze
-Content-Type: application/json
-
-{
-  "text": "The service at the dealership was terrible and unprofessional"
-}
+streamlit run streamlit_dashboard.py --server.port 8501
 ```
+Access at `http://localhost:8501`
 
-**Response:**
-```json
-{
-  "input_text": "The service at the dealership was terrible and unprofessional",
-  "predicted_category": "Complaint / Criticism",
-  "identified_aspects": ["Service"],
-  "sentiment_analysis": {
-    "bert": {
-      "sentiment": "negative",
-      "confidence": 0.9234
-    },
-    "vader": {
-      "sentiment": "negative",
-      "scores": {
-        "positive": 0.0,
-        "neutral": 0.293,
-        "negative": 0.707,
-        "compound": -0.8516
-      }
-    }
-  },
-  "strategic_recommendation": {
-    "insight": "Customers are reporting negative experiences with dealership service...",
-    "strategy": "Service Excellence Initiative",
-    "action": "Immediately review service center protocols...",
-    "priority": "High",
-    "sentiment_consensus": "BERT: negative, VADER: negative"
-  }
-}
-```
+## 📚 Usage Guide
 
-#### 2. Health Check
-```bash
-GET /health
-```
+### Basic Analysis Workflow
 
-#### 3. API Information
-```bash
-GET /
-```
+1. **Start Services**: Run Flask backend and choose your dashboard
+2. **Analyze Comments**: Input customer feedback for real-time analysis
+3. **Review Insights**: Examine sentiment, aspects, and location data
+4. **Strategic Planning**: Use ROI scoring for investment decisions
+5. **AI Insights**: Run the automated agent for comprehensive analysis
 
-### Frontend Dashboard
+### Advanced Analytics Workflow
 
-1. **Enter Comment**: Type or paste customer feedback
-2. **Quick Examples**: Click example comments for testing
-3. **Analyze**: Get instant AI-powered analysis
-4. **Review Results**: See sentiment, category, and aspects
-5. **Strategic Insights**: Get actionable business recommendations
-6. **Sales Strategies**: View AI-generated improvement strategies
+1. **Location Intelligence**: 
+   - Navigate to Location Analytics tab
+   - Review city and regional performance
+   - Identify service hotspots and growth markets
 
-## 🧠 AI Models Used
+2. **ROI Analysis**:
+   - Go to ROI & Opportunity Scoring
+   - Select business aspects for detailed analysis
+   - Review investment recommendations
 
-### BERT (Bidirectional Encoder Representations from Transformers)
-- **Model**: `cardiffnlp/twitter-roberta-base-sentiment-latest`
-- **Fallback**: `distilbert-base-uncased-finetuned-sst-2-english`
-- **Purpose**: Advanced ML-based sentiment classification
-- **Output**: Sentiment + confidence score
+3. **AI Agent**:
+   - Access AI Insight Agent tab
+   - Click "Activate AI Insight Agent"
+   - Review automated findings and recommendations
 
-### VADER (Valence Aware Dictionary and sEntiment Reasoner)
-- **Type**: Rule-based sentiment analysis
-- **Purpose**: Lexicon-based sentiment scoring
-- **Output**: Detailed sentiment breakdown (positive, neutral, negative, compound)
+## 🎯 Key Metrics & KPIs
 
-## 📊 Business Categories
+### Business Impact Indicators
+- **Customer Satisfaction Score**: Positive sentiment percentage
+- **Pain Point Severity**: Negative feedback concentration
+- **Regional Performance**: Geographic sentiment distribution
+- **Opportunity Score**: Investment prioritization metric
+- **Competitive Position**: Sentiment vs competitors
 
-The system classifies comments into:
-- **Complaint / Criticism**: Negative feedback requiring immediate attention
-- **Praise / Satisfaction**: Positive feedback to leverage
-- **Suggestion / Feature Request**: Ideas for product improvement
-- **Purchase Intent / Inquiry**: Sales opportunities
-- **Competitive Comparison**: Market positioning insights
-- **Brand Perception**: Overall brand sentiment
-
-## 🎯 Business Aspects Detected
-
-- **Service**: Dealership, after-sales, customer care
-- **Features**: Technology, safety, infotainment
-- **EV**: Electric vehicles, charging, battery
-- **Price**: Pricing, value, affordability
-- **Build Quality**: Construction, materials, durability
-- **Performance**: Speed, handling, engine
-- **Design**: Styling, appearance, aesthetics
-- **Fuel Efficiency**: Mileage, economy
-- **Sound System**: Audio, Harman, speakers
-- **Comfort**: Seating, space, ergonomics
-
-## 📈 Strategic Recommendations
-
-Based on analysis, the system provides:
-- **Business Insights**: What the data reveals
-- **Recommended Strategies**: How to respond
-- **Immediate Actions**: What to do next
-- **Priority Levels**: High/Medium/Low urgency
-- **Sentiment Consensus**: Agreement between AI models
-
-## 🚀 Sales & Improvement Strategies
-
-The system generates contextual strategies for:
-- **Customer Recovery**: For complaints and negative feedback
-- **Advocacy Programs**: For satisfied customers
-- **Feature Development**: For suggestions and requests
-- **Sales Acceleration**: For purchase inquiries
-- **Reputation Management**: For all feedback types
+### Operational Metrics
+- **Response Time**: Comment analysis speed
+- **Coverage**: Geographic and aspect analysis breadth
+- **Accuracy**: ML model confidence scores
+- **Engagement**: Dashboard usage and interaction
 
 ## 🔧 Configuration
 
-### Environment Variables (Optional)
-```bash
-export FLASK_ENV=development
-export FLASK_DEBUG=True
-export MODEL_CACHE_DIR=./models
-```
+### Backend API Configuration
+- **Port**: 5001 (configurable in `app.py`)
+- **CORS**: Enabled for frontend integration
+- **Cache**: LRU caching for performance optimization
+- **Models**: BERT + VADER + Intent Classification
 
-### Model Configuration
-- Models are downloaded automatically on first run
-- GPU acceleration is used if available
-- Fallback models ensure reliability
+### Dashboard Configuration
+- **HTML Dashboard Port**: 8080
+- **Streamlit Dashboard Port**: 8501
+- **API Base URL**: `http://localhost:5001`
+- **Auto-refresh**: Configurable in Streamlit dashboard
 
-## 🐛 Troubleshooting
+## 📈 Performance Optimizations
+
+### Backend Optimizations
+- **Model Caching**: Pre-loaded ML models
+- **LRU Cache**: Function-level caching for repeated calls
+- **Batch Processing**: Efficient dataset analysis
+- **Async Processing**: Non-blocking operations
+
+### Frontend Optimizations
+- **Data Caching**: Streamlit `@st.cache_data` decorators
+- **Progressive Loading**: Chunked data processing
+- **Responsive Design**: Mobile-friendly interfaces
+- **Real-time Updates**: Live data synchronization
+
+## 🔍 Troubleshooting
 
 ### Common Issues
 
-1. **ModuleNotFoundError**: Install missing dependencies
+1. **Backend Connection Failed**
    ```bash
-   pip install -r requirements.txt
+   # Check if Flask is running
+   curl http://localhost:5001/health
+   
+   # Restart backend
+   python app.py
    ```
 
-2. **CORS Error**: Ensure Flask server is running on port 5000
+2. **Streamlit Dashboard Errors**
+   ```bash
+   # Install missing dependencies
+   pip install streamlit plotly requests
+   
+   # Restart with specific port
+   streamlit run streamlit_dashboard.py --server.port 8501
+   ```
 
-3. **Model Download Fails**: Check internet connection, models will download on first use
+3. **Location Data Missing**
+   - Ensure CSV file contains 'location' column
+   - Verify city names match detection patterns
+   - Check regional mapping configuration
 
-4. **Memory Issues**: Use CPU-only mode by setting device=-1 in code
+### Performance Issues
 
-### Backend Logs
-Check console output for detailed error messages and model loading status.
+1. **Slow Analysis**: 
+   - Reduce dataset size for testing
+   - Check CPU/memory usage
+   - Optimize cache settings
 
-### Frontend Issues
-- Open browser developer tools (F12) to check for JavaScript errors
-- Verify API endpoint URLs match your server configuration
+2. **Dashboard Loading**:
+   - Clear browser cache
+   - Restart Streamlit server
+   - Check network connectivity
 
-## 📱 Browser Compatibility
+## � Future Enhancements
 
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
+### Planned Features
+- **Real-time Data Ingestion**: Social media API integration
+- **Advanced Visualizations**: Geographic heat maps, 3D charts
+- **Export Capabilities**: PDF reports, Excel dashboards
+- **Alert System**: Automated notifications for critical issues
+- **Mobile App**: Dedicated mobile interface
 
-## 🚦 Performance
+### ML Model Improvements
+- **Custom Model Training**: Domain-specific sentiment models
+- **Multi-language Support**: Regional language analysis
+- **Advanced NLP**: Named entity recognition, topic modeling
+- **Predictive Analytics**: Trend forecasting, churn prediction
 
-### Backend
-- **Cold Start**: 30-60 seconds (model loading)
-- **Analysis Time**: 1-3 seconds per comment
-- **Memory Usage**: ~2-4GB (with ML models)
+## � Support & Documentation
 
-### Frontend
-- **Load Time**: <2 seconds
-- **Analysis Display**: Real-time updates
-- **Responsive**: Works on desktop and mobile
+### API Documentation
+- Comprehensive endpoint documentation available at `/` route
+- Interactive API testing via browser
+- JSON response format specifications
 
-## 🔐 Security
+### Dashboard Help
+- In-app tooltips and guidance
+- Example comments for testing
+- Progressive disclosure of advanced features
 
-- CORS enabled for local development
-- Input validation and sanitization
-- No sensitive data storage
-- Rate limiting recommended for production
-
-## 📝 Development
-
-### Adding New Aspects
-Edit the `aspect_keywords` dictionary in `analyze_aspects()` function:
-
-```python
-aspect_keywords = {
-    "New_Aspect": ["keyword1", "keyword2", "keyword3"],
-    # ... existing aspects
-}
-```
-
-### Custom Models
-Replace model names in `initialize_bert_model()`:
-
-```python
-model_name = "your-custom-model-name"
-```
-
-### Frontend Customization
-- Modify CSS variables in `:root` for theming
-- Update `generateSalesStrategies()` for custom strategies
-- Add new visualizations in the results section
-
-## 📞 Support
-
-For issues, questions, or contributions:
-1. Check the troubleshooting section
-2. Review console logs for error details
-3. Ensure all dependencies are correctly installed
-4. Verify backend server is running and accessible
-
-## 🎯 Business Impact
-
-This system helps Tata Motors:
-- **Improve Customer Satisfaction** through rapid issue identification
-- **Enhance Product Development** via customer feedback analysis
-- **Optimize Sales Strategies** with sentiment-driven insights
-- **Strengthen Brand Positioning** through competitive intelligence
-- **Increase Operational Efficiency** via automated analysis
+### Technical Support
+- Check logs for detailed error messages
+- Review terminal output for debugging
+- Consult individual module documentation
 
 ---
 
-**Built with ❤️ for Tata Motors Customer Excellence**
+## 🎉 Quick Start Summary
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Start backend (Terminal 1)
+python app.py
+
+# 3. Start Streamlit dashboard (Terminal 2)  
+streamlit run streamlit_dashboard.py
+
+# 4. Access dashboards
+# HTML: http://localhost:8080/dashboard.html
+# Streamlit: http://localhost:8501
+```
+
+**🎯 Ready to explore Tata Motors customer insights with advanced AI-powered analytics!**

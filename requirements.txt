@@ -16,6 +16,13 @@ scikit-learn
 geopy
 geojson
 
+# Visualization and dashboards
+streamlit
+plotly
+
+# Explainable AI
+lime
+
 # Additional utilities for enhanced analytics
 python-dateutil
 requests
